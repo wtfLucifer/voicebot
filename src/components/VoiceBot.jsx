@@ -41,7 +41,7 @@ export default function VoiceBot() {
     if (!transcript.trim()) return;
 
     const updatedHistory = [...chatHistory, { prompt: transcript }];
-    setChatHistory(updatedHistory);
+    setChatHistory(prev => [...prev, prompt]);
     setResponse(''); // Clear previous response
     setTranscript('');
 
