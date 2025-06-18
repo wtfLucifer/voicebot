@@ -7,12 +7,13 @@ const GeminiBot = ({ setChatHistory }) => {
 
   const handleSend = async () => {
     if (!input.trim()) return;
-    setChatHistory((prev) => [...prev, input]);
+
+    setChatHistory(prev => [...prev, input]);
     setResponse('Thinking...');
 
     try {
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${process.env.REACT_APP_GEMINI_API_KEY}`,
         {
           method: 'POST',
           headers: {
@@ -29,12 +30,25 @@ const GeminiBot = ({ setChatHistory }) => {
       );
 
       const data = await res.json();
-      const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No reply from Gemini.';
+
+      console.log("📤 Prompt:", input);
+      console.log("🔍 Gemini raw response:", data);
+
+      let botReply = '';
+      try {
+        botReply =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+          'No reply from Gemini.';
+      } catch (e) {
+        console.error("❌ Failed to parse Gemini response", e);
+        botReply = 'Parsing error.';
+      }
+
       setResponse(botReply);
       setInput('');
     } catch (error) {
+      console.error('❌ Error connecting to Gemini API:', error);
       setResponse('Error connecting to Gemini API.');
-      console.error(error);
     }
   };
 
