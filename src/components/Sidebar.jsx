@@ -2,7 +2,7 @@ import React from 'react';
 
 const Sidebar = ({ messages = [] }) => {
   return (
-    <div className="w-64 bg-gray-900 text-white p-4 overflow-y-auto">
+    <div className="w-64 bg-black border-r border-white text-white p-4 overflow-y-auto">
       <h2 className="text-xl font-bold mb-4">Chat History</h2>
       {messages.length === 0 ? (
         <p className="text-gray-500">No chats yet.</p>

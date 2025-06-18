@@ -1,106 +1,77 @@
-import React, { useState, useEffect } from 'react';
-import { FaCircle, FaStop, FaPaperPlane } from 'react-icons/fa';
+import React, { useState, useRef } from 'react';
+import { FaMicrophone, FaStop, FaPaperPlane } from 'react-icons/fa';
 
-export default function VoiceBot() {
+const VoiceBot = ({ setChatHistory }) => {
+  const [input, setInput] = useState('');
   const [isRecording, setIsRecording] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [chatHistory, setChatHistory] = useState([]);
-  const [response, setResponse] = useState('');
+  const recognitionRef = useRef(null);
 
-  // Web Speech API
-  let recognition;
+  const handleSpeechInput = () => {
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('Speech Recognition not supported');
+      return;
+    }
 
-  if ('webkitSpeechRecognition' in window) {
-    recognition = new window.webkitSpeechRecognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    const recognition = new window.webkitSpeechRecognition();
     recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
 
     recognition.onresult = (event) => {
-      const speechResult = event.results[0][0].transcript;
-      setTranscript(speechResult);
+      const transcript = event.results[0][0].transcript;
+      setInput(transcript);
     };
 
     recognition.onerror = (event) => {
-      console.error("Speech recognition error:", event.error);
+      console.error('Speech recognition error', event.error);
     };
-  }
 
-  const startListening = () => {
-    setTranscript('');
-    setIsRecording(true);
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
     recognition.start();
+    recognitionRef.current = recognition;
+    setIsRecording(true);
   };
 
-  const stopListening = () => {
+  const stopSpeechInput = () => {
+    recognitionRef.current?.stop();
     setIsRecording(false);
-    recognition.stop();
   };
 
-  const sendPrompt = async () => {
-    if (!transcript.trim()) return;
-
-    const updatedHistory = [...chatHistory, { prompt: transcript }];
-    setChatHistory(prev => [...prev, prompt]);
-    setResponse(''); // Clear previous response
-    setTranscript('');
-
-    // Call OpenAI API (add your own key here securely via env variable)
-    try {
-      const result = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
-          messages: [{ role: 'user', content: transcript }],
-        }),
-      });
-
-      const data = await result.json();
-      const botReply = data.choices[0]?.message?.content || 'No response';
-
-      setResponse(botReply);
-    } catch (error) {
-      setResponse('Error fetching response.');
-      console.error(error);
-    }
+  const handleSend = () => {
+    if (!input.trim()) return;
+    setChatHistory((prev) => [...prev, input]);
+    setInput('');
+    // Call OpenAI or local training API here
   };
 
   return (
-    <div className="flex-1 flex flex-col p-6">
-      <div className="flex-grow overflow-y-auto p-4 border border-white rounded-xl bg-[#111]">
-        {response ? (
-          <div className="text-xl whitespace-pre-line">{response}</div>
-        ) : (
-          <div className="text-gray-400 text-center">Your response will appear here...</div>
-        )}
-      </div>
-
-      <div className="mt-4 flex items-center space-x-3">
-        {/* RECORD or STOP Button */}
+    <div className="flex-1 flex flex-col justify-end p-4 bg-black">
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Type your question..."
+          className="flex-1 p-3 rounded bg-gray-900 border border-white text-white"
+        />
         {!isRecording ? (
-          <FaCircle className="text-red-600 text-3xl cursor-pointer" onClick={startListening} />
+          <button onClick={handleSpeechInput} className="p-3 rounded-full bg-white text-black">
+            <FaMicrophone />
+          </button>
         ) : (
-          <FaStop className="text-white text-3xl cursor-pointer" onClick={stopListening} />
+          <button onClick={stopSpeechInput} className="p-3 rounded-full bg-red-600 text-white">
+            <FaStop />
+          </button>
         )}
-
-        {/* Editor shows up only after recording */}
-        {transcript && (
-          <>
-            <input
-              type="text"
-              value={transcript}
-              onChange={(e) => setTranscript(e.target.value)}
-              className="flex-1 bg-[#222] text-white p-2 rounded border border-white"
-              placeholder="Your question..."
-            />
-            <FaPaperPlane className="text-xl cursor-pointer text-white" onClick={sendPrompt} />
-          </>
-        )}
+        <button onClick={handleSend} className="p-3 rounded-full bg-white text-black">
+          <FaPaperPlane />
+        </button>
       </div>
     </div>
   );
-}
+};
+
+export default VoiceBot;

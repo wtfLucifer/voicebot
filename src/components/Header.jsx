@@ -1,20 +1,24 @@
+import React from 'react';
+import profile from '../assets/profile.png';
 import { FaWhatsapp, FaLinkedin } from 'react-icons/fa';
-import tarunImage from '../assets/tarun.png';
 
-export default function Header() {
+const Header = () => {
   return (
-    <div className="flex justify-between items-center p-4 border-b border-white">
-      <div>
-        <h1 className="text-3xl font-bold tracking-wider">Ask anything about Tarun</h1>
-        <p className="text-sm text-gray-400">To find out whether he is a good fit for the AI Agent Team</p>
-      </div>
-      <div className="flex flex-col items-center space-y-2">
-        <img src={tarunImage} className="h-14 w-14 rounded-full" alt="Tarun" />
-        <div className="flex gap-2">
-          <a href="https://wa.me/7737343549" target="_blank"><FaWhatsapp className="text-green-500 text-xl" /></a>
-          <a href="https://www.linkedin.com/in/gehlottarun1898/" target="_blank"><FaLinkedin className="text-blue-500 text-xl" /></a>
+    <header className="flex items-center justify-between bg-black p-4 border-b border-white">
+      <h1 className="text-4xl font-bold tracking-wide">Ask Anything About Tarun</h1>
+      <div className="flex flex-col items-center">
+        <img src={profile} alt="Tarun" className="w-24 h-24 rounded-full mb-2 border-2 border-white" />
+        <div className="flex gap-4">
+          <a href="https://wa.me/7737343549" target="_blank" rel="noopener noreferrer">
+            <FaWhatsapp className="text-white text-xl hover:text-green-400" />
+          </a>
+          <a href="https://www.linkedin.com/in/gehlottarun1898/" target="_blank" rel="noopener noreferrer">
+            <FaLinkedin className="text-white text-xl hover:text-blue-400" />
+          </a>
         </div>
       </div>
-    </div>
+    </header>
   );
-}
+};
+
+export default Header;
