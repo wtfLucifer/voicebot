@@ -4,16 +4,19 @@ import { FaWhatsapp, FaLinkedin } from 'react-icons/fa';
 
 const Header = () => {
   return (
-    <header className="flex items-center justify-between bg-black p-4 border-b border-white">
-      <h1 className="text-4xl font-bold tracking-wide">Ask Anything About Tarun</h1>
+    <header className="flex items-center justify-between bg-white p-6 border-b border-black">
+      <div>
+        <h1 className="text-[3.5rem] font-bangers leading-tight">Ask Anything About Tarun</h1>
+        <p className="text-[1.75rem] font-bangers mt-2">(To find out whether he is a good fit for the AI Agent Team)</p>
+      </div>
       <div className="flex flex-col items-center">
-        <img src={profile} alt="Tarun" className="w-24 h-24 rounded-full mb-2 border-2 border-white" />
+        <img src={profile} alt="Tarun" className="w-32 h-32 rounded-full mb-2 border-2 border-black" />
         <div className="flex gap-4">
           <a href="https://wa.me/7737343549" target="_blank" rel="noopener noreferrer">
-            <FaWhatsapp className="text-white text-xl hover:text-green-400" />
+            <FaWhatsapp className="text-black text-2xl hover:text-green-500" />
           </a>
           <a href="https://www.linkedin.com/in/gehlottarun1898/" target="_blank" rel="noopener noreferrer">
-            <FaLinkedin className="text-white text-xl hover:text-blue-400" />
+            <FaLinkedin className="text-black text-2xl hover:text-blue-600" />
           </a>
         </div>
       </div>

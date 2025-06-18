@@ -48,26 +48,26 @@ const VoiceBot = ({ setChatHistory }) => {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-end p-4 bg-black">
-      <div className="flex items-center gap-2">
+    <div className="flex-1 flex flex-col justify-end p-6 bg-white overflow-y-auto">
+      <div className="flex items-center gap-3">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your question..."
-          className="flex-1 p-3 rounded bg-gray-900 border border-white text-white"
+          placeholder="Type your question or speak..."
+          className="flex-1 p-4 rounded bg-black text-white border border-black text-2xl font-bebas"
         />
         {!isRecording ? (
-          <button onClick={handleSpeechInput} className="p-3 rounded-full bg-white text-black">
-            <FaMicrophone />
+          <button onClick={handleSpeechInput} className="p-4 rounded-full bg-white border-2 border-black">
+            <FaMicrophone className="text-red-600 text-2xl" />
           </button>
         ) : (
-          <button onClick={stopSpeechInput} className="p-3 rounded-full bg-red-600 text-white">
-            <FaStop />
+          <button onClick={stopSpeechInput} className="p-4 rounded-full bg-red-600">
+            <FaStop className="text-white text-2xl" />
           </button>
         )}
-        <button onClick={handleSend} className="p-3 rounded-full bg-white text-black">
-          <FaPaperPlane />
+        <button onClick={handleSend} className="p-4 rounded-full bg-black">
+          <FaPaperPlane className="text-white text-2xl" />
         </button>
       </div>
     </div>

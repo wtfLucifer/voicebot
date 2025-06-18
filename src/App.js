@@ -7,9 +7,9 @@ function App() {
   const [chatHistory, setChatHistory] = useState([]);
 
   return (
-    <div className="flex h-screen bg-black text-white font-bebas">
+    <div className="flex h-screen bg-white text-black font-bebas">
       <Sidebar messages={chatHistory} />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-auto">
         <Header />
         <VoiceBot setChatHistory={setChatHistory} />
       </div>
