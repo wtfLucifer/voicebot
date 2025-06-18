@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
-import VoiceBot from './components/VoiceBot';
+import GeminiBot from './components/GeminiBot';
 
-function App() {
+export default function App() {
   const [chatHistory, setChatHistory] = useState([]);
 
   return (
@@ -11,10 +11,8 @@ function App() {
       <Sidebar messages={chatHistory} />
       <div className="flex-1 flex flex-col overflow-auto">
         <Header />
-        <VoiceBot setChatHistory={setChatHistory} />
+        <GeminiBot setChatHistory={setChatHistory} />
       </div>
     </div>
   );
 }
-
-export default App;

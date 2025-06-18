@@ -1,8 +1,7 @@
-// VoiceBot.jsx (Gemini-only, no STT/TTS)
 import React, { useState } from 'react';
 import { FaPaperPlane } from 'react-icons/fa';
 
-const VoiceBot = ({ setChatHistory }) => {
+const GeminiBot = ({ setChatHistory }) => {
   const [input, setInput] = useState('');
   const [response, setResponse] = useState('');
 
@@ -60,4 +59,4 @@ const VoiceBot = ({ setChatHistory }) => {
   );
 };
 
-export default VoiceBot;
+export default GeminiBot;
