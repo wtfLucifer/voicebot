@@ -1,116 +1,106 @@
-// File: src/components/VoiceBot.jsx
-import React, { useState, useEffect, useRef } from "react";
-import { FaPlayCircle, FaPauseCircle, FaPaperPlane } from "react-icons/fa";
+import React, { useState, useEffect } from 'react';
+import { FaCircle, FaStop, FaPaperPlane } from 'react-icons/fa';
 
-const VoiceBot = () => {
-  const [listening, setListening] = useState(false);
-  const [transcript, setTranscript] = useState("");
-  const [messages, setMessages] = useState([]);
-  const recognitionRef = useRef(null);
+export default function VoiceBot() {
+  const [isRecording, setIsRecording] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [chatHistory, setChatHistory] = useState([]);
+  const [response, setResponse] = useState('');
 
-  const API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
+  // Web Speech API
+  let recognition;
 
-  useEffect(() => {
-    if (!("webkitSpeechRecognition" in window)) {
-      alert("Web Speech API is not supported in this browser");
-    } else {
-      const recognition = new window.webkitSpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = "en-US";
-      recognition.onresult = (event) => {
-        const text = event.results[0][0].transcript;
-        setTranscript(text);
-      };
-      recognitionRef.current = recognition;
-    }
-  }, []);
+  if ('webkitSpeechRecognition' in window) {
+    recognition = new window.webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = (event) => {
+      const speechResult = event.results[0][0].transcript;
+      setTranscript(speechResult);
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error:", event.error);
+    };
+  }
 
   const startListening = () => {
-    setTranscript("");
-    recognitionRef.current.start();
-    setListening(true);
+    setTranscript('');
+    setIsRecording(true);
+    recognition.start();
   };
 
   const stopListening = () => {
-    recognitionRef.current.stop();
-    setListening(false);
+    setIsRecording(false);
+    recognition.stop();
   };
 
-  const sendMessage = async () => {
+  const sendPrompt = async () => {
     if (!transcript.trim()) return;
-    const newMessages = [...messages, { role: "user", text: transcript }];
-    setMessages(newMessages);
-    setTranscript("");
 
-    const payload = {
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are an AI trained to answer exactly like Tarun. Tarun is candid, witty, emotionally intelligent, and speaks in short, thoughtful sentences. Use humor when appropriate, and speak as if you’re talking to a smart friend.",
+    const updatedHistory = [...chatHistory, { prompt: transcript }];
+    setChatHistory(updatedHistory);
+    setResponse(''); // Clear previous response
+    setTranscript('');
+
+    // Call OpenAI API (add your own key here securely via env variable)
+    try {
+      const result = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
         },
-        ...newMessages.map((msg) => ({ role: msg.role, content: msg.text })),
-      ],
-    };
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [{ role: 'user', content: transcript }],
+        }),
+      });
 
-    const res = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${API_KEY}`,
-      },
-      body: JSON.stringify(payload),
-    });
+      const data = await result.json();
+      const botReply = data.choices[0]?.message?.content || 'No response';
 
-    const data = await res.json();
-    const reply = data.choices?.[0]?.message?.content;
-    setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
+      setResponse(botReply);
+    } catch (error) {
+      setResponse('Error fetching response.');
+      console.error(error);
+    }
   };
 
   return (
-    <div className="bg-black text-white min-h-screen flex font-bebas">
-      <aside className="w-64 p-4 border-r border-white/20 overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-4 tracking-wide">History</h2>
-        {messages.map((m, i) => (
-          <div
-            key={i}
-            className={`mb-2 text-sm ${m.role === "user" ? "text-pink-400" : "text-green-400"}`}
-          >
-            <b>{m.role === "user" ? "You" : "Bot"}:</b> {m.text}
-          </div>
-        ))}
-      </aside>
-      <main className="flex-1 flex flex-col p-8 justify-end">
-        <div className="bg-white text-black p-4 rounded-xl min-h-[100px]">
-          <textarea
-            className="w-full h-24 resize-none p-2 text-lg"
-            value={transcript}
-            onChange={(e) => setTranscript(e.target.value)}
-            placeholder="Speak or type your message..."
-          ></textarea>
-        </div>
-        <div className="flex gap-4 mt-4 items-center">
-          {!listening ? (
-            <button onClick={startListening} className="bg-white text-black p-4 rounded-full text-3xl">
-              <FaPlayCircle />
-            </button>
-          ) : (
-            <button onClick={stopListening} className="bg-white text-black p-4 rounded-full text-3xl">
-              <FaPauseCircle />
-            </button>
-          )}
-          <button onClick={sendMessage} className="bg-white text-black p-4 rounded-full text-3xl">
-            <FaPaperPlane />
-          </button>
-        </div>
-      </main>
+    <div className="flex-1 flex flex-col p-6">
+      <div className="flex-grow overflow-y-auto p-4 border border-white rounded-xl bg-[#111]">
+        {response ? (
+          <div className="text-xl whitespace-pre-line">{response}</div>
+        ) : (
+          <div className="text-gray-400 text-center">Your response will appear here...</div>
+        )}
+      </div>
+
+      <div className="mt-4 flex items-center space-x-3">
+        {/* RECORD or STOP Button */}
+        {!isRecording ? (
+          <FaCircle className="text-red-600 text-3xl cursor-pointer" onClick={startListening} />
+        ) : (
+          <FaStop className="text-white text-3xl cursor-pointer" onClick={stopListening} />
+        )}
+
+        {/* Editor shows up only after recording */}
+        {transcript && (
+          <>
+            <input
+              type="text"
+              value={transcript}
+              onChange={(e) => setTranscript(e.target.value)}
+              className="flex-1 bg-[#222] text-white p-2 rounded border border-white"
+              placeholder="Your question..."
+            />
+            <FaPaperPlane className="text-xl cursor-pointer text-white" onClick={sendPrompt} />
+          </>
+        )}
+      </div>
     </div>
   );
-};
-
-export default VoiceBot;
-
-
-
+}

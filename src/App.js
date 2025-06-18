@@ -1,10 +1,17 @@
-// File: src/App.js
-import React from "react";
-import VoiceBot from "./components/VoiceBot";
+import VoiceBot from './components/VoiceBot';
+import Sidebar from './components/Sidebar';
+import Header from './components/Header';
 
-export default function App() {
-  return <VoiceBot />;
+function App() {
+  return (
+    <div className="h-screen bg-black text-white font-bebas">
+      <Header />
+      <div className="flex h-[calc(100%-5rem)]">
+        <Sidebar />
+        <VoiceBot />
+      </div>
+    </div>
+  );
 }
 
-
-
+export default App;
